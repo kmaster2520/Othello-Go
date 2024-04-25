@@ -1,0 +1,12 @@
+
+GameStates:
+
+GameInit
+GameInProgress
+GameOver
+
+1. For player turn, get list of valid next positions
+
+
+
+BWWWW_
