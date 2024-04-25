@@ -22,12 +22,12 @@ func setTileValueAt(row int, col int, tileValue TileValue) {
 	gridboard[row][col] = tileValue
 }
 
-func setValidNextMove(row int, col int, value bool) {
-	validNextSteps[row][col] = value
+func setCaptureValue(row int, col int, numCaptures int) {
+	tileCaptureValues[row][col] = numCaptures
 }
 
 func isValidNextMove(row int, col int) bool {
-	return validNextSteps[row][col]
+	return tileCaptureValues[row][col] > 0
 }
 
 func initializeBoard() {

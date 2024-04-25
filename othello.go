@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	gridboard      [tilesPerRow][tilesPerRow]TileValue
-	validNextSteps [tilesPerRow][tilesPerRow]bool
-	countWhite     int
-	countBlack     int
+	gridboard         [tilesPerRow][tilesPerRow]TileValue
+	tileCaptureValues [tilesPerRow][tilesPerRow]int
+	countWhite        int
+	countBlack        int
 )
 
 const (
@@ -82,16 +82,14 @@ func setNextValidMoves(currentPlayer TileValue) bool {
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
 			if getTileValueAt(r, c) != TileEmpty {
-				setValidNextMove(r, c, false)
+				setCaptureValue(r, c, 0)
 				continue
 			}
 
 			numCaptures := numCapturesForPlayerOnSpace(currentPlayer, r, c, false)
+			setCaptureValue(r, c, numCaptures)
 			if numCaptures > 0 {
-				setValidNextMove(r, c, true)
 				doesValidMoveExist = true
-			} else {
-				setValidNextMove(r, c, false)
 			}
 		}
 	}
