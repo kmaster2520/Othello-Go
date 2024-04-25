@@ -28,6 +28,8 @@ const (
 	TileWhite
 )
 
+type GameBoard [tilesPerRow][tilesPerRow]TileValue
+
 type GameState int8
 
 const (

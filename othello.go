@@ -6,18 +6,6 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-var (
-	gridboard         [tilesPerRow][tilesPerRow]TileValue
-	tileCaptureValues [tilesPerRow][tilesPerRow]int
-	countWhite        int
-	countBlack        int
-)
-
-const (
-	topY int32 = uiHeight
-	topX int32 = 0
-)
-
 func getTileCoordFromMousePosition(mousePosition rl.Vector2) (int, int) {
 
 	var row int = (int(mousePosition.Y) - int(topY)) / tileSize
@@ -26,12 +14,12 @@ func getTileCoordFromMousePosition(mousePosition rl.Vector2) (int, int) {
 	return row, col
 }
 
-func setPlayerCounts() {
+func setPlayerCounts(board *GameBoard) {
 	countBlack = 0
 	countWhite = 0
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
-			tileValue := getTileValueAt(r, c)
+			tileValue := getTileValueAt(board, r, c)
 			if tileValue == TileBlack {
 				countBlack++
 			} else if tileValue == TileWhite {
@@ -42,7 +30,7 @@ func setPlayerCounts() {
 	}
 }
 
-func drawBoard() {
+func drawBoard(board *GameBoard) {
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
 
@@ -53,7 +41,7 @@ func drawBoard() {
 			rl.DrawRectangleLines(x, y, tileSize, tileSize, boardLineColor)
 
 			// draw circle, if occupied
-			tileValue := getTileValueAt(r, c)
+			tileValue := getTileValueAt(board, r, c)
 
 			if tileValue == TileEmpty {
 				if isValidNextMove(r, c) {
@@ -73,7 +61,7 @@ func drawBoard() {
 	}
 }
 
-func setNextValidMoves(currentPlayer TileValue) bool {
+func setNextValidMoves(board *GameBoard, currentPlayer TileValue) bool {
 	if currentPlayer == TileEmpty {
 		return false
 	}
@@ -81,12 +69,12 @@ func setNextValidMoves(currentPlayer TileValue) bool {
 
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
-			if getTileValueAt(r, c) != TileEmpty {
+			if getTileValueAt(board, r, c) != TileEmpty {
 				setCaptureValue(r, c, 0)
 				continue
 			}
 
-			numCaptures := numCapturesForPlayerOnSpace(currentPlayer, r, c, false)
+			numCaptures := numCapturesForPlayerOnSpace(board, currentPlayer, r, c, false)
 			setCaptureValue(r, c, numCaptures)
 			if numCaptures > 0 {
 				doesValidMoveExist = true
@@ -97,7 +85,7 @@ func setNextValidMoves(currentPlayer TileValue) bool {
 	return doesValidMoveExist
 }
 
-func numCapturesForPlayerOnSpace(player TileValue, row int, col int, doFlip bool) int {
+func numCapturesForPlayerOnSpace(board *GameBoard, player TileValue, row int, col int, doFlip bool) int {
 	if row < 0 || row >= tilesPerRow || col < 0 || col >= tilesPerRow || player == TileEmpty {
 		return 0
 	}
@@ -126,7 +114,7 @@ func numCapturesForPlayerOnSpace(player TileValue, row int, col int, doFlip bool
 		nextRow, nextCol = row+dr, col+dc
 		var counted int = 0
 		for isValidPosition(nextRow, nextCol) {
-			tileValue := getTileValueAt(nextRow, nextCol)
+			tileValue := getTileValueAt(board, nextRow, nextCol)
 			if tileValue == opponent {
 				toBeFlipped[counted][0] = nextRow
 				toBeFlipped[counted][1] = nextCol
@@ -135,7 +123,7 @@ func numCapturesForPlayerOnSpace(player TileValue, row int, col int, doFlip bool
 				total += counted
 				if doFlip {
 					for i := 0; i < counted; i++ {
-						setTileValueAt(toBeFlipped[i][0], toBeFlipped[i][1], player)
+						setTileValueAt(board, toBeFlipped[i][0], toBeFlipped[i][1], player)
 					}
 				}
 				break

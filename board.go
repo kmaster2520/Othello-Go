@@ -14,12 +14,12 @@ func isValidPosition(row int, col int) bool {
 	return row >= 0 && row < tilesPerRow && col >= 0 && col < tilesPerRow
 }
 
-func getTileValueAt(row int, col int) TileValue {
-	return gridboard[row][col]
+func getTileValueAt(board *GameBoard, row int, col int) TileValue {
+	return board[row][col]
 }
 
-func setTileValueAt(row int, col int, tileValue TileValue) {
-	gridboard[row][col] = tileValue
+func setTileValueAt(board *GameBoard, row int, col int, tileValue TileValue) {
+	board[row][col] = tileValue
 }
 
 func setCaptureValue(row int, col int, numCaptures int) {
@@ -30,28 +30,27 @@ func isValidNextMove(row int, col int) bool {
 	return tileCaptureValues[row][col] > 0
 }
 
-func initializeBoard() {
+func initializeBoard(board *GameBoard) {
 
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
-			gridboard[r][c] = TileEmpty
+			board[r][c] = TileEmpty
 		}
 	}
 
-	gridboard[tilesPerRow/2][tilesPerRow/2] = TileWhite
-	gridboard[tilesPerRow/2-1][tilesPerRow/2-1] = TileWhite
+	board[tilesPerRow/2][tilesPerRow/2] = TileWhite
+	board[tilesPerRow/2-1][tilesPerRow/2-1] = TileWhite
 
-	gridboard[tilesPerRow/2-1][tilesPerRow/2] = TileBlack
-	gridboard[tilesPerRow/2][tilesPerRow/2-1] = TileBlack
-
+	board[tilesPerRow/2-1][tilesPerRow/2] = TileBlack
+	board[tilesPerRow/2][tilesPerRow/2-1] = TileBlack
 }
 
 /*
-func copyBoard() [tilesPerRow][tilesPerRow]TileValue {
+func copyBoard(board *GameBoard) GameBoard {
 	var copiedBoard [tilesPerRow][tilesPerRow]TileValue
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
-			copiedBoard[r][c] = getTileValueAt(r, c)
+			copiedBoard[r][c] = board[r][c]
 		}
 	}
 	return copiedBoard

@@ -8,6 +8,18 @@ import (
 )
 
 var (
+	gridboard         GameBoard
+	tileCaptureValues [tilesPerRow][tilesPerRow]int
+	countWhite        int
+	countBlack        int
+)
+
+const (
+	topY int32 = uiHeight
+	topX int32 = 0
+)
+
+var (
 	currentState  GameState
 	currentPlayer TileValue
 
@@ -18,9 +30,9 @@ var (
 func restartGame() {
 	currentState = GameInProgress
 	currentPlayer = TileBlack
-	initializeBoard()
-	setPlayerCounts()
-	setNextValidMoves(currentPlayer)
+	initializeBoard(&gridboard)
+	setPlayerCounts(&gridboard)
+	setNextValidMoves(&gridboard, currentPlayer)
 }
 
 func init() {
@@ -37,7 +49,7 @@ func render() {
 	rl.BeginDrawing()
 	rl.ClearBackground(bkgColor)
 
-	drawBoard()
+	drawBoard(&gridboard)
 
 	rl.DrawText("Current Player", 0, 0, 20, rl.White)
 	var playerColor color.RGBA
@@ -71,16 +83,16 @@ func update() {
 	if currentState == GameInProgress && mouseClicked {
 		tileRow, tileCol := getTileCoordFromMousePosition(mousePosition)
 		if isValidNextMove(tileRow, tileCol) {
-			setTileValueAt(tileRow, tileCol, currentPlayer)
-			numCapturesForPlayerOnSpace(currentPlayer, tileRow, tileCol, true)
-			setPlayerCounts()
+			setTileValueAt(&gridboard, tileRow, tileCol, currentPlayer)
+			numCapturesForPlayerOnSpace(&gridboard, currentPlayer, tileRow, tileCol, true)
+			setPlayerCounts(&gridboard)
 
 			if currentPlayer == TileBlack {
 				currentPlayer = TileWhite
 			} else {
 				currentPlayer = TileBlack
 			}
-			doesValidMoveExist := setNextValidMoves(currentPlayer)
+			doesValidMoveExist := setNextValidMoves(&gridboard, currentPlayer)
 			if !doesValidMoveExist {
 				currentState = GameOver
 			}
