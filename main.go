@@ -89,11 +89,14 @@ func update() {
 			tileRow, tileCol = getTileCoordFromMousePosition(mousePosition)
 		} else if currentPlayer == TileWhite {
 			tileRow, tileCol = determineNextMoveForAIPlayer(&gridboard, currentPlayer)
+			fmt.Printf("AI choose: %d %d (valid? %t)\n", tileRow+1, tileCol+1,
+				getTileValueAt(&gridboard, tileRow, tileCol) == TileEmpty)
 		}
 
 		if isValidNextMove(tileRow, tileCol) {
 			numCapturesForPlayerOnSpace(&gridboard, currentPlayer, tileRow, tileCol, true)
 			setTileValueAt(&gridboard, tileRow, tileCol, currentPlayer)
+
 			setPlayerCounts(&gridboard)
 
 			if currentPlayer == TileBlack {
