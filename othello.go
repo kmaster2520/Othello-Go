@@ -89,6 +89,9 @@ func numCapturesForPlayerOnSpace(board *GameBoard, player TileValue, row int, co
 	if row < 0 || row >= tilesPerRow || col < 0 || col >= tilesPerRow || player == TileEmpty {
 		return 0
 	}
+	if getTileValueAt(board, row, col) != TileEmpty {
+		return 0
+	}
 
 	var total int = 0
 	var (

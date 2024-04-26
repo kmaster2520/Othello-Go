@@ -10,6 +10,14 @@ var (
 	validSpaceColor  = rl.NewColor(196, 196, 32, 255)
 )
 
+func getOpponent(value TileValue) TileValue {
+	if value == TileBlack {
+		return TileWhite
+	} else {
+		return TileBlack
+	}
+}
+
 func isValidPosition(row int, col int) bool {
 	return row >= 0 && row < tilesPerRow && col >= 0 && col < tilesPerRow
 }
@@ -45,14 +53,10 @@ func initializeBoard(board *GameBoard) {
 	board[tilesPerRow/2][tilesPerRow/2-1] = TileBlack
 }
 
-/*
-func copyBoard(board *GameBoard) GameBoard {
-	var copiedBoard [tilesPerRow][tilesPerRow]TileValue
+func copyBoard(board *GameBoard, newBoard *GameBoard) {
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
-			copiedBoard[r][c] = board[r][c]
+			newBoard[r][c] = board[r][c]
 		}
 	}
-	return copiedBoard
 }
-*/

@@ -83,12 +83,14 @@ func update() {
 	if currentState == GameInProgress && mouseClicked {
 		tileRow, tileCol := getTileCoordFromMousePosition(mousePosition)
 		if isValidNextMove(tileRow, tileCol) {
-			setTileValueAt(&gridboard, tileRow, tileCol, currentPlayer)
 			numCapturesForPlayerOnSpace(&gridboard, currentPlayer, tileRow, tileCol, true)
+			setTileValueAt(&gridboard, tileRow, tileCol, currentPlayer)
 			setPlayerCounts(&gridboard)
 
 			if currentPlayer == TileBlack {
 				currentPlayer = TileWhite
+				aiRow, aiCol := determineNextMoveForAIPlayer(&gridboard, currentPlayer)
+				fmt.Printf("%d %d\n", aiRow+1, aiCol+1)
 			} else {
 				currentPlayer = TileBlack
 			}
