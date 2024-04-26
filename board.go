@@ -35,7 +35,7 @@ func setCaptureValue(row int, col int, numCaptures int) {
 }
 
 func isValidNextMove(row int, col int) bool {
-	return tileCaptureValues[row][col] > 0
+	return isValidPosition(row, col) && tileCaptureValues[row][col] > 0
 }
 
 func initializeBoard(board *GameBoard) {
