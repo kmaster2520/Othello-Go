@@ -6,12 +6,15 @@ func determineNextMoveForAIPlayer(board *GameBoard, aiPlayer TileValue) (int, in
 }
 
 func getScore(board *GameBoard, targetValue TileValue) int {
+	opponent := getOpponent(targetValue)
 	var total int = 0
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
 			tileValue := getTileValueAt(board, r, c)
 			if tileValue == targetValue {
 				total++
+			} else if tileValue == opponent {
+				total--
 			}
 		}
 	}
@@ -35,7 +38,8 @@ func minimax(board GameBoard, aiPlayer TileValue, currentPlayer TileValue, doMax
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
 			copyBoard(&board, &nextBoard)
-			if numCapturesForPlayerOnSpace(&nextBoard, currentPlayer, r, c, true) > 0 {
+			numCaptures, _ := numCapturesForPlayerOnSpace(&nextBoard, currentPlayer, r, c, true)
+			if numCaptures > 0 {
 				_, _, mmax := minimax(nextBoard, aiPlayer, getOpponent(currentPlayer), !doMax, depth+1, maxDepth)
 				if (doMax && mmax > bestScore) || (!doMax && mmax < bestScore) || (!bestScoreSet) {
 					bestRow = r

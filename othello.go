@@ -74,7 +74,7 @@ func setNextValidMoves(board *GameBoard, currentPlayer TileValue) bool {
 				continue
 			}
 
-			numCaptures := numCapturesForPlayerOnSpace(board, currentPlayer, r, c, false)
+			numCaptures, _ := numCapturesForPlayerOnSpace(board, currentPlayer, r, c, false)
 			setCaptureValue(r, c, numCaptures)
 			if numCaptures > 0 {
 				doesValidMoveExist = true
@@ -85,12 +85,13 @@ func setNextValidMoves(board *GameBoard, currentPlayer TileValue) bool {
 	return doesValidMoveExist
 }
 
-func numCapturesForPlayerOnSpace(board *GameBoard, player TileValue, row int, col int, doFlip bool) int {
+func numCapturesForPlayerOnSpace(board *GameBoard, player TileValue, row int, col int, doFlip bool) (int, [18][2]int) {
+	var toBeFlipped [18][2]int
 	if row < 0 || row >= tilesPerRow || col < 0 || col >= tilesPerRow || player == TileEmpty {
-		return 0
+		return 0, toBeFlipped
 	}
 	if getTileValueAt(board, row, col) != TileEmpty {
-		return 0
+		return 0, toBeFlipped
 	}
 
 	var total int = 0
@@ -99,18 +100,12 @@ func numCapturesForPlayerOnSpace(board *GameBoard, player TileValue, row int, co
 		nextCol int
 	)
 
-	var opponent TileValue
-	if player == TileBlack {
-		opponent = TileWhite
-	} else {
-		opponent = TileBlack
-	}
+	var opponent TileValue = getOpponent(player)
 
 	directions := [][]int{
 		{-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
 		{0, 1}, {1, -1}, {1, 0}, {1, 1},
 	}
-	var toBeFlipped [8][2]int
 
 	for _, dir := range directions {
 		dr, dc := dir[0], dir[1]
@@ -138,6 +133,6 @@ func numCapturesForPlayerOnSpace(board *GameBoard, player TileValue, row int, co
 		}
 	}
 
-	return total
+	return total, toBeFlipped
 
 }

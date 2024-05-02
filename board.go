@@ -13,9 +13,10 @@ var (
 func getOpponent(value TileValue) TileValue {
 	if value == TileBlack {
 		return TileWhite
-	} else {
+	} else if value == TileWhite {
 		return TileBlack
 	}
+	return TileEmpty
 }
 
 func isValidPosition(row int, col int) bool {
