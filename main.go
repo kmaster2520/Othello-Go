@@ -9,6 +9,9 @@ import (
 
 var (
 	gridboard         GameBoard
+	prevboardCounter  int
+	prevboards        [100]GameBoard
+	boardDrawOffset   int
 	tileCaptureValues [tilesPerRow][tilesPerRow]int
 	countWhite        int
 	countBlack        int
@@ -30,6 +33,8 @@ var (
 func restartGame() {
 	currentState = GameInProgress
 	currentPlayer = TileBlack
+	prevboardCounter = 0
+	boardDrawOffset = 0
 	initializeBoard(&gridboard)
 	setPlayerCounts(&gridboard)
 	setNextValidMoves(&gridboard, currentPlayer)
@@ -49,7 +54,11 @@ func render() {
 	rl.BeginDrawing()
 	rl.ClearBackground(bkgColor)
 
-	drawBoard(&gridboard)
+	if boardDrawOffset > 0 && prevboardCounter >= boardDrawOffset {
+		drawBoard(&prevboards[prevboardCounter-boardDrawOffset])
+	} else {
+		drawBoard(&gridboard)
+	}
 
 	rl.DrawText("Current Player", 0, 0, 20, rl.White)
 	var playerColor color.RGBA
@@ -70,6 +79,8 @@ func render() {
 	}
 
 	rl.EndDrawing()
+
+	boardDrawOffset = 0
 }
 
 func input() {
@@ -77,6 +88,14 @@ func input() {
 		mouseClicked = true
 		mousePosition = rl.GetMousePosition()
 	}
+
+	if rl.IsKeyDown(rl.KeyTwo) {
+		boardDrawOffset = 2
+	}
+	if rl.IsKeyDown(rl.KeyOne) {
+		boardDrawOffset = 1
+	}
+
 }
 
 func update() {
@@ -89,12 +108,18 @@ func update() {
 			tileRow, tileCol = getTileCoordFromMousePosition(mousePosition)
 		} else if currentPlayer == TileWhite {
 			tileRow, tileCol = determineNextMoveForAIPlayer(&gridboard, currentPlayer)
-			fmt.Printf("AI choose: %d %d (valid? %t)\n", tileRow+1, tileCol+1,
-				getTileValueAt(&gridboard, tileRow, tileCol) == TileEmpty)
+			//fmt.Printf("AI choose: %d %d (valid? %t)\n", tileRow+1, tileCol+1,
+			//		getTileValueAt(&gridboard, tileRow, tileCol) == TileEmpty)
 		}
 
 		if isValidNextMove(tileRow, tileCol) {
-			numCapturesForPlayerOnSpace(&gridboard, currentPlayer, tileRow, tileCol, true)
+			numCaptures, tilesToFlip := numCapturesForPlayerOnSpace(&gridboard, currentPlayer, tileRow, tileCol)
+			fmt.Println("---", currentPlayer, "---")
+			fmt.Println(tileRow, tileCol)
+			fmt.Println(numCaptures, tilesToFlip)
+			recordBoardState(&gridboard)
+
+			setTileValues(&gridboard, currentPlayer, tilesToFlip, numCaptures)
 			setTileValueAt(&gridboard, tileRow, tileCol, currentPlayer)
 
 			setPlayerCounts(&gridboard)

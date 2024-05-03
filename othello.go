@@ -14,6 +14,11 @@ func getTileCoordFromMousePosition(mousePosition rl.Vector2) (int, int) {
 	return row, col
 }
 
+func recordBoardState(board *GameBoard) {
+	copyBoard(board, &prevboards[prevboardCounter])
+	prevboardCounter++
+}
+
 func setPlayerCounts(board *GameBoard) {
 	countBlack = 0
 	countWhite = 0
@@ -74,7 +79,7 @@ func setNextValidMoves(board *GameBoard, currentPlayer TileValue) bool {
 				continue
 			}
 
-			numCaptures, _ := numCapturesForPlayerOnSpace(board, currentPlayer, r, c, false)
+			numCaptures, _ := numCapturesForPlayerOnSpace(board, currentPlayer, r, c)
 			setCaptureValue(r, c, numCaptures)
 			if numCaptures > 0 {
 				doesValidMoveExist = true
@@ -85,7 +90,7 @@ func setNextValidMoves(board *GameBoard, currentPlayer TileValue) bool {
 	return doesValidMoveExist
 }
 
-func numCapturesForPlayerOnSpace(board *GameBoard, player TileValue, row int, col int, doFlip bool) (int, [18][2]int) {
+func numCapturesForPlayerOnSpace(board *GameBoard, player TileValue, row int, col int) (int, [18][2]int) {
 	var toBeFlipped [18][2]int
 	if row < 0 || row >= tilesPerRow || col < 0 || col >= tilesPerRow || player == TileEmpty {
 		return 0, toBeFlipped
@@ -114,16 +119,11 @@ func numCapturesForPlayerOnSpace(board *GameBoard, player TileValue, row int, co
 		for isValidPosition(nextRow, nextCol) {
 			tileValue := getTileValueAt(board, nextRow, nextCol)
 			if tileValue == opponent {
-				toBeFlipped[counted][0] = nextRow
-				toBeFlipped[counted][1] = nextCol
+				toBeFlipped[total+counted][0] = nextRow
+				toBeFlipped[total+counted][1] = nextCol
 				counted += 1
 			} else if tileValue == player {
 				total += counted
-				if doFlip {
-					for i := 0; i < counted; i++ {
-						setTileValueAt(board, toBeFlipped[i][0], toBeFlipped[i][1], player)
-					}
-				}
 				break
 			} else {
 				break
