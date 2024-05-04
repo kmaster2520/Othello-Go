@@ -66,10 +66,9 @@ func render() {
 		drawBoard(&prevboards[prevboardCounter-boardDrawOffset])
 	} else {
 		drawBoard(&gridboard)
-	}
-
-	if currentState == GameAnimateCapture {
-		drawCapturedSpaces(tilesToFlip, numCaptures)
+		if currentState == GameAnimateCapture {
+			drawCapturedSpaces(tilesToFlip, numCaptures)
+		}
 	}
 
 	rl.DrawText("Current Player", 0, 0, 20, rl.White)
@@ -131,9 +130,9 @@ func update() {
 
 		if isValidNextMove(tileRow, tileCol) {
 			numCaptures, tilesToFlip = numCapturesForPlayerOnSpace(&gridboard, currentPlayer, tileRow, tileCol)
-			fmt.Println("---", currentPlayer, "---")
-			fmt.Println(tileRow, tileCol)
-			fmt.Println(numCaptures, tilesToFlip)
+			//fmt.Println("---", currentPlayer, "---")
+			//fmt.Println(tileRow, tileCol)
+			//fmt.Println(numCaptures, tilesToFlip)
 			recordBoardState(&gridboard)
 			currentState = GameAnimateCapture
 			animateFramesLeft = 30
