@@ -30,6 +30,16 @@ func setPlayerCounts(board *GameBoard) {
 	}
 }
 
+func drawCapturedSpaces(toBeFlipped [18][2]int, count int) {
+	for i := 0; i < count; i++ {
+		r := toBeFlipped[i][0]
+		c := toBeFlipped[i][1]
+		x := int32(c*tileSize) + topX
+		y := int32(r*tileSize) + topY
+		rl.DrawCircle(x+tileSize/2, y+tileSize/2, tileSize/6, rl.Red)
+	}
+}
+
 func drawBoard(board *GameBoard) {
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
