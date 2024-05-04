@@ -14,11 +14,6 @@ func getTileCoordFromMousePosition(mousePosition rl.Vector2) (int, int) {
 	return row, col
 }
 
-func recordBoardState(board *GameBoard) {
-	copyBoard(board, &prevboards[prevboardCounter])
-	prevboardCounter++
-}
-
 func setPlayerCounts(board *GameBoard) {
 	countBlack = 0
 	countWhite = 0

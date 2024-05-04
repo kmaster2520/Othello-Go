@@ -10,7 +10,7 @@ import (
 var (
 	gridboard         GameBoard
 	prevboardCounter  int
-	prevboards        [100]GameBoard
+	prevboards        [65]GameBoard
 	boardDrawOffset   int
 	tileCaptureValues [tilesPerRow][tilesPerRow]int
 	countWhite        int
@@ -40,6 +40,11 @@ func restartGame() {
 	setNextValidMoves(&gridboard, currentPlayer)
 }
 
+func recordBoardState(board *GameBoard) {
+	copyBoard(board, &prevboards[prevboardCounter])
+	prevboardCounter++
+}
+
 func init() {
 	rl.InitWindow(screenWidth, screenHeight, gameName)
 	rl.SetTargetFPS(30)
@@ -48,6 +53,7 @@ func init() {
 
 func quit() {
 	defer rl.CloseWindow()
+	// this is where you'd free up any loaded textures, if any exist
 }
 
 func render() {
