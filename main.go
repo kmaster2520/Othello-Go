@@ -9,9 +9,13 @@ import (
 
 var (
 	gridboard         GameBoard
+	prevboardCounter  int
+	prevboards        [65]GameBoard
+	boardDrawOffset   int
 	tileCaptureValues [tilesPerRow][tilesPerRow]int
 	countWhite        int
 	countBlack        int
+	animateFramesLeft int
 )
 
 const (
@@ -29,10 +33,18 @@ var (
 
 func restartGame() {
 	currentState = GameInProgress
+	animateFramesLeft = 0
 	currentPlayer = TileBlack
+	prevboardCounter = 0
+	boardDrawOffset = 0
 	initializeBoard(&gridboard)
 	setPlayerCounts(&gridboard)
 	setNextValidMoves(&gridboard, currentPlayer)
+}
+
+func recordBoardState(board *GameBoard) {
+	copyBoard(board, &prevboards[prevboardCounter])
+	prevboardCounter++
 }
 
 func init() {
@@ -43,13 +55,21 @@ func init() {
 
 func quit() {
 	defer rl.CloseWindow()
+	// this is where you'd free up any loaded textures, if any exist
 }
 
 func render() {
 	rl.BeginDrawing()
 	rl.ClearBackground(bkgColor)
 
-	drawBoard(&gridboard)
+	if boardDrawOffset > 0 && prevboardCounter >= boardDrawOffset {
+		drawBoard(&prevboards[prevboardCounter-boardDrawOffset])
+	} else {
+		drawBoard(&gridboard)
+		if currentState == GameAnimateCapture {
+			drawCapturedSpaces(tilesToFlip, numCaptures)
+		}
+	}
 
 	rl.DrawText("Current Player", 0, 0, 20, rl.White)
 	var playerColor color.RGBA
@@ -70,6 +90,8 @@ func render() {
 	}
 
 	rl.EndDrawing()
+
+	boardDrawOffset = 0
 }
 
 func input() {
@@ -77,40 +99,61 @@ func input() {
 		mouseClicked = true
 		mousePosition = rl.GetMousePosition()
 	}
+
+	if rl.IsKeyDown(rl.KeyTwo) {
+		boardDrawOffset = 2
+	}
+	if rl.IsKeyDown(rl.KeyOne) {
+		boardDrawOffset = 1
+	}
+
 }
+
+var (
+	tileRow     int = -1
+	tileCol     int = -1
+	tilesToFlip [18][2]int
+	numCaptures int
+)
 
 func update() {
 	if currentState == GameInProgress {
-		var (
-			tileRow int = -1
-			tileCol int = -1
-		)
+		tileRow = -1
+		tileCol = -1
 		if currentPlayer == TileBlack && mouseClicked {
 			tileRow, tileCol = getTileCoordFromMousePosition(mousePosition)
 		} else if currentPlayer == TileWhite {
 			tileRow, tileCol = determineNextMoveForAIPlayer(&gridboard, currentPlayer)
-			fmt.Printf("AI choose: %d %d (valid? %t)\n", tileRow+1, tileCol+1,
-				getTileValueAt(&gridboard, tileRow, tileCol) == TileEmpty)
+			//fmt.Printf("AI choose: %d %d (valid? %t)\n", tileRow+1, tileCol+1,
+			//		getTileValueAt(&gridboard, tileRow, tileCol) == TileEmpty)
 		}
 
 		if isValidNextMove(tileRow, tileCol) {
-			numCapturesForPlayerOnSpace(&gridboard, currentPlayer, tileRow, tileCol, true)
+			numCaptures, tilesToFlip = numCapturesForPlayerOnSpace(&gridboard, currentPlayer, tileRow, tileCol)
+			//fmt.Println("---", currentPlayer, "---")
+			//fmt.Println(tileRow, tileCol)
+			//fmt.Println(numCaptures, tilesToFlip)
+			recordBoardState(&gridboard)
+			currentState = GameAnimateCapture
+			animateFramesLeft = 30
 			setTileValueAt(&gridboard, tileRow, tileCol, currentPlayer)
+		}
+	}
+
+	if currentState == GameAnimateCapture {
+		animateFramesLeft--
+		if animateFramesLeft <= 0 {
+			setTileValues(&gridboard, currentPlayer, tilesToFlip, numCaptures)
 
 			setPlayerCounts(&gridboard)
 
-			if currentPlayer == TileBlack {
-				currentPlayer = TileWhite
-				//aiRow, aiCol := determineNextMoveForAIPlayer(&gridboard, currentPlayer)
-				//fmt.Printf("%d %d\n", aiRow+1, aiCol+1)
-			} else {
-				currentPlayer = TileBlack
-			}
+			currentPlayer = getOpponent(currentPlayer)
 			doesValidMoveExist := setNextValidMoves(&gridboard, currentPlayer)
 			if !doesValidMoveExist {
 				currentState = GameOver
+			} else {
+				currentState = GameInProgress
 			}
-
 		}
 	}
 

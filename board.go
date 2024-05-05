@@ -31,6 +31,12 @@ func setTileValueAt(board *GameBoard, row int, col int, tileValue TileValue) {
 	board[row][col] = tileValue
 }
 
+func setTileValues(board *GameBoard, tileValue TileValue, spaces [18][2]int, count int) {
+	for i := 0; i < count; i++ {
+		setTileValueAt(board, spaces[i][0], spaces[i][1], tileValue)
+	}
+}
+
 func setCaptureValue(row int, col int, numCaptures int) {
 	tileCaptureValues[row][col] = numCaptures
 }

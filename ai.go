@@ -38,8 +38,10 @@ func minimax(board GameBoard, aiPlayer TileValue, currentPlayer TileValue, doMax
 	for r := 0; r < tilesPerRow; r++ {
 		for c := 0; c < tilesPerRow; c++ {
 			copyBoard(&board, &nextBoard)
-			numCaptures, _ := numCapturesForPlayerOnSpace(&nextBoard, currentPlayer, r, c, true)
+			numCaptures, tilesToFlip := numCapturesForPlayerOnSpace(&nextBoard, currentPlayer, r, c)
 			if numCaptures > 0 {
+				setTileValues(&nextBoard, currentPlayer, tilesToFlip, numCaptures)
+				setTileValueAt(&nextBoard, r, c, currentPlayer)
 				_, _, mmax := minimax(nextBoard, aiPlayer, getOpponent(currentPlayer), !doMax, depth+1, maxDepth)
 				if (doMax && mmax > bestScore) || (!doMax && mmax < bestScore) || (!bestScoreSet) {
 					bestRow = r

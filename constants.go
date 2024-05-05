@@ -35,5 +35,6 @@ type GameState int8
 const (
 	GameInitial GameState = iota
 	GameInProgress
+	GameAnimateCapture
 	GameOver
 )
